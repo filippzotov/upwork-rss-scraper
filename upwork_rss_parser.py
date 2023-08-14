@@ -15,28 +15,6 @@ def get_articles_from_rss(url, seen_articles):
         item_url = item.find("link").text
         if item_url in seen_articles:
             continue
-        articles.append(
-            {
-                "title": item.find("title").text,
-                "link": item_url,
-                "date": item.find("pubDate").text,
-                "comments": item.find("comments").text,
-                "description": item.find("description").text,
-            }
-        )
-        seen_articles.add(item_url)
-    return articles
-
-
-def get_articles_from_rss(url, seen_articles):
-    articles = []
-    req = requests.get(url)
-    src = req.content
-    soup = BeautifulSoup(src, "xml")
-    for item in soup.find_all("item"):
-        item_url = item.find("link").text
-        if item_url in seen_articles:
-            continue
         details = find_details_in_description(item.find("description").text)
         articles.append(
             {
@@ -82,13 +60,13 @@ def find_details_in_description(description):
     skills = (
         ", ".join([skill.strip() for skill in skills_string.split(",")])
         if skills_string
-        else []
+        else None
     )
     budget_string = get_data_after_label("Hourly Range")
     budget_range = (
         tuple(map(str.strip, budget_string.split("-")))
         if budget_string and "-" in budget_string
-        else ()
+        else None
     )
     country = get_data_after_label("Country")
     content_before_posted_on = get_data_before_label("Posted On")
@@ -129,3 +107,4 @@ if __name__ == "__main__":
         add_articles_to_csv(articles, f"{rss_name}_{today_date}.csv")
         print(datetime.datetime.now(), "file updated")
         time.sleep(60)
+    print("finished")
